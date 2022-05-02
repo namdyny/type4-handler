@@ -16,38 +16,44 @@ router = APIRouter(
 async def get_dinning_records_form_field():
     dinning_records = DinningRecords(foods="foo, bar", spicyness=SpicinessEnum.not_spicy)
     return {
-        "fields": {
-            "meal_date": {
-            "type": "date",
-            "value": dinning_records.meal_date,
-            "required": True
+        "fields": [
+            {
+                "name": "faecal_date",
+                "type": "date",
+                "value": dinning_records.meal_date,
+                "required": True
             },
-            "meal_time": {
+            {
+                "name": "meal_time",
                 "type": "number",
                 "value": dinning_records.meal_time,
                 "required": True
             },
-            "foods": {
+            {
+                "name": "foods",
                 "type": "textarea",
                 "placeholder": "beef, lemon tea",
                 "required": True
             },
-            "is_expired": {
-                "type": "radio",
+            {
+                "name": "is_expired",
+                "type": "checkbox",
                 "value": dinning_records.is_expired,
                 "required": True
             },
-            "spicyness": {
+            {
+                "name": "spicyness",
                 "type": "select",
                 "value": [e.value for e in SpicinessEnum],
                 "required": True
             },
-            "remarks": {
+            {
+                "name": "remarks",
                 "type": "textarea",
                 "placeholder": "( Optional )",
                 "required": False
             },
-        }
+        ]
     }
 
 @router.post("/add")

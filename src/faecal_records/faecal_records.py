@@ -17,28 +17,32 @@ router = APIRouter(
 async def get_dinning_records_form_field():
     faecal_records = FaecalRecords()
     return {
-        "fields": {
-            "faecal_date": {
-            "type": "date",
-            "value": faecal_records.faecal_date,
-            "required": True
+        "fields": [
+            {
+                "name": "faecal_date",
+                "type": "date",
+                "value": faecal_records.faecal_date,
+                "required": True
             },
-            "faecal_time": {
+            {
+                "name": "faecal_time",
                 "type": "number",
                 "value": faecal_records.faecal_time,
                 "required": True
             },
-            "faecal_type": {
+            {
+                "name": "faecal_type",
                 "type": "select",
                 "value": [e.value for e in FaecalTypeEnum],
                 "required": True
             },
-            "remarks": {
+            {
+                "name": "remarks",
                 "type": "textarea",
                 "placeholder": "( Optional )",
                 "required": False
             },
-        }
+        ]
     }
 
 @router.post("/add")
