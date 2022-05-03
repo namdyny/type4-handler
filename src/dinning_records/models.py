@@ -19,7 +19,7 @@ class SpicinessEnum(IntEnum):
     not_spicy = 0
     bb = 1
     little = 2
-    mid = 3
+    medium = 3
     more = 4
     killing = 5
 
@@ -36,7 +36,7 @@ class DinningRecordsMealDatetimeFilterEnum(Enum):
 class DinningRecords(BaseModel):
     meal_date: constr(regex=r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$') = TZ.localize(datetime.now()).strftime("%Y-%m-%d")
     meal_time: int = int(TZ.localize(datetime.now()).strftime("%H"))
-    foods: str
+    foods: str = ...
     # foods: List[str] = []
     is_expired: bool = False
     spicyness: SpicinessEnum = SpicinessEnum.not_spicy

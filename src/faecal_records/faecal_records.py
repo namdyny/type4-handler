@@ -20,24 +20,28 @@ async def get_dinning_records_form_field():
         "fields": [
             {
                 "name": "faecal_date",
+                "verbose": "Date",
                 "type": "date",
                 "value": faecal_records.faecal_date,
                 "required": True
             },
             {
                 "name": "faecal_time",
+                "verbose": "Time",
                 "type": "number",
                 "value": faecal_records.faecal_time,
                 "required": True
             },
             {
                 "name": "faecal_type",
+                "verbose": "Type",
                 "type": "select",
-                "value": [e.value for e in FaecalTypeEnum],
+                "value": [[e.name, e.value] for e in FaecalTypeEnum],
                 "required": True
             },
             {
                 "name": "remarks",
+                "verbose": "Remarks",
                 "type": "textarea",
                 "placeholder": "( Optional )",
                 "required": False
