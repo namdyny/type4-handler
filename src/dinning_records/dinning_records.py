@@ -19,7 +19,7 @@ async def get_dinning_records_form_field():
     return {
         "fields": [
             {
-                "name": "faecal_date",
+                "name": "meal_date",
                 "verbose": "Date",
                 "type": "date",
                 "value": dinning_records.meal_date,

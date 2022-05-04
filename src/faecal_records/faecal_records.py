@@ -59,7 +59,7 @@ async def add_and_update_faecal_records(faecal_record: FaecalRecords):
     faecal_datetime = TZ.localize(
         datetime(faecal_date[0], faecal_date[1], faecal_date[2], faecal_record_dict["faecal_time"])
     )
-    faecal_record_dict["faecal_time"] = faecal_datetime
+    faecal_record_dict["faecal_datetime"] = faecal_datetime
     filter_string = {"faecal_datetime": faecal_datetime}
     mongo.collection.update_one(
         filter_string,
