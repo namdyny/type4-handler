@@ -30,18 +30,13 @@ async def get_dinning_records_form_field():
                 "verbose": "Time",
                 "type": "number",
                 "value": dinning_records.meal_time,
-                "required": True
-            },
-            {
-                "name": "foods",
-                "verbose": "Foods",
-                "type": "textarea",
-                "placeholder": "beef, lemon tea",
-                "required": True
+                "required": True,
+                "min": 0,
+                "max": 23
             },
             {
                 "name": "is_expired",
-                "verbose": "Is Expired",
+                "verbose": "Expired",
                 "type": "checkbox",
                 "value": dinning_records.is_expired,
                 "required": True
@@ -51,6 +46,13 @@ async def get_dinning_records_form_field():
                 "verbose": "Spicyness",
                 "type": "select",
                 "value": [[e.name, e.value] for e in SpicinessEnum],
+                "required": True
+            },
+            {
+                "name": "foods",
+                "verbose": "Foods",
+                "type": "textarea",
+                "placeholder": "beef, lemon tea",
                 "required": True
             },
             {

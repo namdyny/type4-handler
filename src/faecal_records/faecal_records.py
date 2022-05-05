@@ -30,7 +30,9 @@ async def get_dinning_records_form_field():
                 "verbose": "Time",
                 "type": "number",
                 "value": faecal_records.faecal_time,
-                "required": True
+                "required": True,
+                "min": 0,
+                "max": 23
             },
             {
                 "name": "faecal_type",
