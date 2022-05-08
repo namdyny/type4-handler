@@ -1,18 +1,10 @@
 from datetime import datetime
 from enum import IntEnum, Enum
+from generic_models.generic_models import *
 from pydantic import BaseModel, constr
 from time import time
 from typing import List
 from configs.globals import *
-
-
-# class MealTimeEnum(IntEnum):
-#     breakfast = 0
-#     brunch = 1
-#     lunch = 2
-#     tea = 3
-#     dinner = 4
-#     midnight = 5
 
 
 class SpicinessEnum(IntEnum):
@@ -35,7 +27,8 @@ class DinningRecordsMealDatetimeFilterEnum(Enum):
 
 class DinningRecords(BaseModel):
     meal_date: constr(regex=r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$') = TZ.localize(datetime.now()).strftime("%Y-%m-%d")
-    meal_time: int = int(TZ.localize(datetime.now()).strftime("%H"))
+    # meal_time: int = int(TZ.localize(datetime.now()).strftime("%H"))
+    meal_time: GenericTimeEnum = HOUR_DICT[int(TZ.localize(datetime.now()).strftime("%H"))]
     foods: str = ...
     # foods: List[str] = []
     is_expired: bool = False

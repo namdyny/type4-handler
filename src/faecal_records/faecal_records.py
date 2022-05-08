@@ -23,30 +23,34 @@ async def get_dinning_records_form_field():
                 "verbose": "Date",
                 "type": "date",
                 "value": faecal_records.faecal_date,
-                "required": True
+                "required": True,
+                "header": "📆"
             },
             {
                 "name": "faecal_time",
                 "verbose": "Time",
-                "type": "number",
-                "value": faecal_records.faecal_time,
+                "type": "select",
+                "value": [[e.name, e.value] for e in GenericTimeEnum],
                 "required": True,
-                "min": 0,
-                "max": 23
+                "display": "value",
+                "header": "⏰"
             },
             {
                 "name": "faecal_type",
                 "verbose": "Type",
                 "type": "select",
                 "value": [[e.name, e.value] for e in FaecalTypeEnum],
-                "required": True
+                "required": True,
+                "display": "name",
+                "header": "💩"
             },
             {
                 "name": "remarks",
                 "verbose": "Remarks",
                 "type": "textarea",
                 "placeholder": "( Optional )",
-                "required": False
+                "required": False,
+                "header": "📝"
             },
         ]
     }
@@ -62,12 +66,13 @@ async def add_and_update_faecal_records(faecal_record: FaecalRecords):
         datetime(faecal_date[0], faecal_date[1], faecal_date[2], faecal_record_dict["faecal_time"])
     )
     faecal_record_dict["faecal_datetime"] = faecal_datetime
-    filter_string = {"faecal_datetime": faecal_datetime}
-    mongo.collection.update_one(
-        filter_string,
-        {"$set": faecal_record_dict},
-        upsert=True
-    )
+    # filter_string = {"faecal_datetime": faecal_datetime}
+    # mongo.collection.update_one(
+    #     filter_string,
+    #     {"$set": faecal_record_dict},
+    #     upsert=True
+    # )
+    mongo.collection.insert_one(faecal_record_dict)
 
     mongo.client.close()
     return {"success": True}
@@ -88,4 +93,6 @@ async def get_faecal_records_form_field():
 async def get_faecal_records(filter: RecordsDatetimeFilterEnum = None):
     mongo = Type4DB("faecal_records")
     faecal_records = get_datetime_filter_records(mongo, filter, "faecal_datetime")
+    for e, record in enumerate(faecal_records):
+        faecal_records[e]["faecal_date"] = record["faecal_date"].replace('-', '.')
     return {"data": faecal_records}

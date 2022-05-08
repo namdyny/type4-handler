@@ -23,44 +23,50 @@ async def get_dinning_records_form_field():
                 "verbose": "Date",
                 "type": "date",
                 "value": dinning_records.meal_date,
-                "required": True
+                "required": True,
+                "header": "📆"
             },
             {
                 "name": "meal_time",
                 "verbose": "Time",
-                "type": "number",
-                "value": dinning_records.meal_time,
+                "type": "select",
+                "value": [[e.name, e.value] for e in GenericTimeEnum],
                 "required": True,
-                "min": 0,
-                "max": 23
+                "display": "value",
+                "header": "⏰"
             },
             {
                 "name": "is_expired",
                 "verbose": "Expired",
                 "type": "checkbox",
                 "value": dinning_records.is_expired,
-                "required": True
+                "required": True,
+                "header": "💀"
             },
             {
                 "name": "spicyness",
                 "verbose": "Spicyness",
                 "type": "select",
                 "value": [[e.name, e.value] for e in SpicinessEnum],
-                "required": True
+                "required": True,
+                "display": "name",
+                "header": "🌶️"
             },
             {
                 "name": "foods",
                 "verbose": "Foods",
                 "type": "textarea",
                 "placeholder": "beef, lemon tea",
-                "required": True
+                "required": True,
+                "header": "🍲"
             },
             {
                 "name": "remarks",
                 "verbose": "Remarks",
                 "type": "textarea",
                 "placeholder": "( Optional )",
-                "required": False
+                "required": False,
+                "header": "📝"
             },
         ]
     }
@@ -71,7 +77,7 @@ async def add_and_update_dinning_records(dinning_record: DinningRecords):
     
     # update or insert into dinning_records
     dinning_record_dict = dict(dinning_record)
-    foods = list(set(dinning_record_dict["foods"].replace(", ", ',').split(',')))
+    foods = list(set(dinning_record_dict["foods"].lower().replace(", ", ',').split(',')))
     print(len(foods) == 1 and foods[0] == '')
     if len(foods) == 1 and foods[0] == '':
         mongo.client.close()
@@ -89,6 +95,7 @@ async def add_and_update_dinning_records(dinning_record: DinningRecords):
             {"$set": dinning_record_dict},
             upsert=True
         )
+        # mongo.collection.insert_one(dinning_record_dict)
 
         # update or insert into food_names
         mongo.set_collection("food_names")
@@ -98,7 +105,6 @@ async def add_and_update_dinning_records(dinning_record: DinningRecords):
                 {"$set": {"food": food, "last_consumed": dinning_record_dict["meal_datetime"]}},
                 upsert=True
             )
-
         mongo.client.close()
         return {"success": True}
 
@@ -118,4 +124,10 @@ async def get_dinning_records_form_field():
 async def get_dinning_records(filter: RecordsDatetimeFilterEnum = None):
     mongo = Type4DB("dinning_records")
     dinning_records = get_datetime_filter_records(mongo, filter, "meal_datetime")
+    for e, record in enumerate(dinning_records):
+        foods = ""
+        for food in record["foods"]: foods += f"{food}, "
+        foods = foods[:-2]
+        dinning_records[e]["foods"] = foods
+        dinning_records[e]["meal_date"] = record["meal_date"].replace('-', '.')
     return {"data": dinning_records}

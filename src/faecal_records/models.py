@@ -4,6 +4,7 @@ from pydantic import BaseModel, constr
 from time import time
 from typing import List
 from configs.globals import *
+from generic_models.generic_models import *
 
 
 class FaecalTypeEnum(IntEnum):
@@ -18,7 +19,7 @@ class FaecalTypeEnum(IntEnum):
 
 class FaecalRecords(BaseModel):
     faecal_date: constr(regex=r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$') = TZ.localize(datetime.now()).strftime("%Y-%m-%d")
-    faecal_time: int = int(TZ.localize(datetime.now()).strftime("%H"))
+    faecal_time: GenericTimeEnum = HOUR_DICT[int(TZ.localize(datetime.now()).strftime("%H"))]
     faecal_type: FaecalTypeEnum = FaecalTypeEnum.normal
     remarks: str = ""
     created: int = int(time() * 1000)
