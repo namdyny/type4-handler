@@ -1,8 +1,6 @@
 from enum import IntEnum
 
 
-
-
 class GenericTimeEnum(IntEnum):
     am_0 = 0
     am_1 = 1
