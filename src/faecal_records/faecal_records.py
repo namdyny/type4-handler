@@ -5,6 +5,8 @@ from configs.globals import *
 from faecal_records.models import *
 from generic_apps.filter_app import *
 from pkgs.mongodb.mongodb import Type4DB
+from generic_apps.filter_by_id import *
+from generic_apps.delete_a_record import *
 
 
 router = APIRouter(
@@ -33,7 +35,8 @@ async def get_dinning_records_form_field():
                 "value": [[e.name, e.value] for e in GenericTimeEnum],
                 "required": True,
                 "display": "value",
-                "header": "⏰"
+                "header": "⏰",
+                "selected": HOUR_DICT[int(TZ.localize(datetime.now()).strftime("%H"))]
             },
             {
                 "name": "faecal_type",
@@ -56,7 +59,7 @@ async def get_dinning_records_form_field():
     }
 
 @router.post("/add")
-async def add_and_update_faecal_records(faecal_record: FaecalRecords):
+async def add_and_update_faecal_records(faecal_record: FaecalRecords, id: str = None):
     mongo = Type4DB("faecal_records")
     
     # update or insert into dinning_records
@@ -66,13 +69,15 @@ async def add_and_update_faecal_records(faecal_record: FaecalRecords):
         datetime(faecal_date[0], faecal_date[1], faecal_date[2], faecal_record_dict["faecal_time"])
     )
     faecal_record_dict["faecal_datetime"] = faecal_datetime
-    # filter_string = {"faecal_datetime": faecal_datetime}
-    # mongo.collection.update_one(
-    #     filter_string,
-    #     {"$set": faecal_record_dict},
-    #     upsert=True
-    # )
-    mongo.collection.insert_one(faecal_record_dict)
+    if id == None:
+        mongo.collection.insert_one(faecal_record_dict)
+    else:
+        filter_string = {"_id": ObjectId(id)}
+        mongo.collection.update_one(
+            filter_string,
+            {"$set": faecal_record_dict},
+            upsert=True
+        )
 
     mongo.client.close()
     return {"success": True}
@@ -96,3 +101,15 @@ async def get_faecal_records(filter: RecordsDatetimeFilterEnum = None):
     for e, record in enumerate(faecal_records):
         faecal_records[e]["faecal_date"] = record["faecal_date"].replace('-', '.')
     return {"data": faecal_records}
+
+@router.get("/get/with")
+async def get_faecal_records(id: str):
+    mongo = Type4DB("faecal_records")
+    faecal_records = get_by_id(mongo, id)
+    return {"data": faecal_records}
+
+@router.get("/remove")
+async def remove_faecal_records(id: str):
+    mongo = Type4DB("faecal_records")
+    success = remove_by_id(mongo, id)
+    return {"success": success}

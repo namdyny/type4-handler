@@ -29,6 +29,8 @@ def get_datetime_filter_records(mongo: Type4DB, filter: RecordsDatetimeFilterEnu
     offset_datetime = now - filter_offset_dict[filter]
     filter_string = {filter_datetime: {"$gte": offset_datetime, "$lte": now}}
     records = [i for i in mongo.collection.find(filter_string)]
-    for record in records: del record["_id"]
+    for record in records:
+        record["id"] = str(record["_id"])
+        del record["_id"]
     mongo.client.close()
     return records

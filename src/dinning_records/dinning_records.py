@@ -4,7 +4,10 @@ from fastapi import APIRouter
 from configs.globals import *
 from dinning_records.models import *
 from generic_apps.filter_app import *
+from generic_apps.filter_by_id import *
 from pkgs.mongodb.mongodb import Type4DB
+from bson.objectid import ObjectId
+from generic_apps.delete_a_record import *
 
 
 router = APIRouter(
@@ -33,7 +36,8 @@ async def get_dinning_records_form_field():
                 "value": [[e.name, e.value] for e in GenericTimeEnum],
                 "required": True,
                 "display": "value",
-                "header": "⏰"
+                "header": "⏰",
+                "selected": HOUR_DICT[int(TZ.localize(datetime.now()).strftime("%H"))]
             },
             {
                 "name": "is_expired",
@@ -72,7 +76,7 @@ async def get_dinning_records_form_field():
     }
 
 @router.post("/add")
-async def add_and_update_dinning_records(dinning_record: DinningRecords):
+async def add_and_update_dinning_records(dinning_record: DinningRecords, id: str = None):
     mongo = Type4DB("dinning_records")
     
     # update or insert into dinning_records
@@ -89,13 +93,14 @@ async def add_and_update_dinning_records(dinning_record: DinningRecords):
             datetime(meal_date[0], meal_date[1], meal_date[2], dinning_record_dict["meal_time"])
         )
         dinning_record_dict["meal_datetime"] = meal_datetime
-        filter_string = {"meal_datetime": meal_datetime}
+        if id == None: filter_string = {"meal_datetime": meal_datetime}
+        else: filter_string = {"_id": ObjectId(id)}
+        # mongo.collection.insert_one(dinning_record_dict)
         mongo.collection.update_one(
             filter_string,
             {"$set": dinning_record_dict},
             upsert=True
         )
-        # mongo.collection.insert_one(dinning_record_dict)
 
         # update or insert into food_names
         mongo.set_collection("food_names")
@@ -131,3 +136,19 @@ async def get_dinning_records(filter: RecordsDatetimeFilterEnum = None):
         dinning_records[e]["foods"] = foods
         dinning_records[e]["meal_date"] = record["meal_date"].replace('-', '.')
     return {"data": dinning_records}
+
+@router.get("/get/with")
+async def get_dinning_records(id: str):
+    mongo = Type4DB("dinning_records")
+    dinning_records = get_by_id(mongo, id)
+    foods = ""
+    for food in dinning_records["foods"]: foods += f"{food}, "
+    foods = foods[:-2]
+    dinning_records["foods"] = foods
+    return {"data": dinning_records}
+
+@router.get("/remove")
+async def remove_dinning_records(id: str):
+    mongo = Type4DB("dinning_records")
+    success = remove_by_id(mongo, id)
+    return {"success": success}
